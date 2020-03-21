@@ -27,6 +27,7 @@ public class InventoryItem {
 
         private String country_code_of_origin;
         private String quantity;
+        private String location;
 
         public void setSku(String sku){
         this.sku = sku;
@@ -107,5 +108,13 @@ public class InventoryItem {
 
     public void setQuantity(String quantity) {
         this.quantity = quantity;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

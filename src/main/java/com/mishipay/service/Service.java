@@ -1,6 +1,7 @@
 package com.mishipay.service;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.mishipay.service.pojo.*;
 import com.mishipay.service.pojo.response.order.OrderResponse;
 import com.mishipay.utils.JSONResponseHandler;
@@ -29,9 +30,12 @@ public class Service {
     String locationUrl = url+"admin/api/2020-01/locations.json";
     String inventoryLevelUrl = url+"admin/api/2020-01/inventory_levels.json?location_ids=";
     String inventoryUrl = url+"admin/api/2020-01/inventory_items.json?ids=";
+    String inventoryUpdateUrl = url+"/admin/api/2020-01/inventory_levels/adjust.json";
     String orderUrl = url+"admin/api/2020-01/orders.json";
 
     Gson gson = new Gson();
+
+    Map<String,String> location = new HashMap<>();
 
     public String getInventory() throws NetworkCommunicationException {
 
@@ -42,7 +46,8 @@ public class Service {
         String inventoryids = inventoryLevels.getInventoryLevel().stream().map(InventoryLevel::getInventory_item_id).filter(Objects::nonNull).map(Objects::toString).collect(Collectors.joining(","));
 
         Map<String,String>available = inventoryLevels.getInventoryLevel().stream().collect(Collectors.toMap(inventoryLevel -> inventoryLevel.getInventory_item_id()+"",inventoryLevel -> inventoryLevel.getAvailable()+""));
-
+        Map<String,String> location1 = inventoryLevels.getInventoryLevel().stream().collect(Collectors.toMap(inventoryLevel -> inventoryLevel.getInventory_item_id()+"",inventoryLevel -> inventoryLevel.getLocation_id()+""));
+        location.putAll(location1);
 
         InventoryItems inventoryItems = pooledHttpRequestMaker.executeHttpGet(inventoryUrl+inventoryids,new HashMap<>(),new JSONResponseHandler<>(InventoryItems.class));
 
@@ -51,7 +56,7 @@ public class Service {
         return gson.toJson(inventoryItems);
     }
 
-    public String placeOrder(List<LineItems> items){
+    public String placeOrder(List<LineItems> items) throws NetworkCommunicationException {
 
 
         Order order = new Order();
@@ -66,6 +71,17 @@ public class Service {
             e.printStackTrace();
             return e.getMessage();
         }
+
+        List<InventoryAdjust> inventoryAdjusts = items.stream().map(item -> new InventoryAdjust(Long.parseLong(location.get(item.getVariant_id()+"")),item.getVariant_id(),-1*item.getQuantity())).collect(Collectors.toList());
+
+
+        for (InventoryAdjust inventoryAdjust : inventoryAdjusts) {
+            try {
+                pooledHttpRequestMaker.executeHttpPost(inventoryUpdateUrl,gson.toJson(inventoryAdjust),new JSONResponseHandler<>(JsonObject.class),"application/json");
+            } catch (NetworkCommunicationException e) {
+            }
+        }
+
         return gson.toJson(orderResponse);
 
     }

@@ -52,7 +52,13 @@ public class Controller {
 	public Response get(@Context ContainerRequestContext requestContext
 			, List<LineItems> items
 	) {
-		String orderResponse = service.placeOrder(items);
+		String orderResponse = null;
+		try {
+			orderResponse = service.placeOrder(items);
+		} catch (NetworkCommunicationException e) {
+			e.printStackTrace();
+			orderResponse = "error";
+		}
 
 		return Response.status(Status.OK).entity(orderResponse).build();
 	}
