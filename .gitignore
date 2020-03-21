@@ -1,0 +1,14 @@
+.idea/workspace.xml
+*.class
+.DS_Store
+/**/.idea
+.idea/*
+*.iml
+target/
+*.classpath
+*.project
+.settings/*
+*/.settings/*
+*/*/.settings/*
+/.dockerignore
+.gitignore
