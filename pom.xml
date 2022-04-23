@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring25-release-version>4.3.6.RELEASE</spring25-release-version>
+        <spring25-release-version>5.3.19</spring25-release-version>
         <jersey-version>2.27</jersey-version>
         <packaging.type>jar</packaging.type>
     </properties>
